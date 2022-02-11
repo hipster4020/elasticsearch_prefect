@@ -1,0 +1,235 @@
+
+👉🏻 kibana query
+Kibana → Dev tools
+
+
+# delete index
+DELETE em_news_v5
+
+
+# create index
+PUT index_v5
+{
+    "settings": {
+        "number_of_shards": 10,
+        "number_of_replicas": 1,
+        "refresh_interval": "30s",
+        "analysis": {
+            "analyzer": {
+                "nori_analyzer": {
+                    "type": "custom",
+                    "tokenizer": "korean_nori_tokenizer",
+                    "filter": [
+                        "lowercase",
+                        "nori_readingform",
+                        "nori_posfilter",
+                        "trim"
+                    ]
+                },
+                "my_ngram_tokenizer": {
+                    "tokenizer": "my_ngram_tokenizer"
+                },
+                "edge_ngram_tokenizer": {
+                    "tokenizer": "edge_ngram_tokenizer"
+                }
+            },
+            "tokenizer": {
+                "korean_nori_tokenizer": {
+                    "type": "nori_tokenizer",
+                    "decompound_mode": "mixed"
+                },
+                "edge_ngram_tokenizer": {
+                    "type": "edge_ngram",
+                    "min_gram": "1",
+                    "max_gram": "10"
+                },
+                "my_ngram_tokenizer": {
+                    "type": "ngram",
+                    "min_gram": "1",
+                    "max_gram": "2"
+                }
+            },
+            "filter":{
+                "nori_posfilter":{
+                    "type":"nori_part_of_speech",
+                    "stoptags":[
+                        "E",
+                        "IC",
+                        "J",
+                        "MAG",
+                        "MM",
+                        "NA",
+                        "NR",
+                        "SC",
+                        "SE",
+                        "SF",
+                        "SH",
+                        "SL",
+                        "SN",
+                        "SP",
+                        "SSC",
+                        "SSO",
+                        "SY",
+                        "UNA",
+                        "UNKNOWN",
+                        "VA",
+                        "VCN",
+                        "VCP",
+                        "VSV",
+                        "VV",
+                        "VX",
+                        "XPN",
+                        "XR",
+                        "XSA",
+                        "XSN",
+                        "XSV"
+                    ]
+                }
+            }
+        }
+    },
+    "mappings": {
+        "properties": {
+            "_all": {
+                "enabled": false
+            },
+            "keyword_columm": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword"
+                    },
+                    "ngram": {
+                        "type": "text",
+                        "analyzer": "my_ngram_tokenizer"
+                    },
+                    "nori": {
+                        "type": "text",
+                        "analyzer": "nori"
+                    },
+                    "edge": {
+                        "type": "text",
+                        "analyzer": "edge_ngram_tokenizer"
+                    }
+                }
+            },
+            "text_column": {
+                "type": "text",
+                "fields": {
+                    "ngram": {
+                        "type": "text",
+                        "analyzer": "my_ngram_tokenizer"
+                    },
+                    "nori": {
+                        "type": "text",
+                        "analyzer": "nori"
+                    },
+                    "edge": {
+                        "type": "text",
+                        "analyzer": "edge_ngram_tokenizer"
+                    }
+                }
+            },
+            "date_columm": {
+                "type": "date",
+                "ignore_malformed": true
+            },
+            "text_column2": {
+                "type": "text",
+                "index": false
+            },
+            "keyword_columm2": {
+                "type": "keyword"
+            },
+            "keyword_columm3": {
+                "type": "keyword"
+            },
+            "text_column3": {
+                "type": "text",
+                "index": false
+            },
+            "keyword_columm4": {
+                "type": "keyword"
+            },
+            "text_column4": {
+                "type": "text",
+                "fields": {
+                    "ngram": {
+                        "type": "text",
+                        "analyzer": "my_ngram_tokenizer"
+                    },
+                    "nori": {
+                        "type": "text",
+                        "analyzer": "nori"
+                    },
+                    "edge": {
+                        "type": "text",
+                        "analyzer": "edge_ngram_tokenizer"
+                    }
+                }
+            },
+            "keyword_columm5":{
+                "type":"keyword"
+            },
+            "keyword_columm6":{
+                "type":"keyword"
+            }
+        }
+    }
+}
+
+
+# reindex
+POST _reindex
+{
+    "source": {
+        "index": "index_v4"
+    },
+    "dest": {
+        "index": "index_v5"
+    }
+}
+
+
+# reindex curl command
+curl -XPOST "http://dev-server:9200/_reindex" -H 'Content-Type: application/json' -d'{ "source": { "index": "em_news_v4" }, "dest": { "index": "em_news_v5" }}'
+
+
+# search query
+GET _cat/indices/em_news*
+
+
+GET em_news_v5/_count
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "exists": {
+          "field": "sentiment"
+        }
+      }
+    }
+  }
+}
+
+
+GET em_news_v5/_search
+{
+  "query": {
+    "match": {
+      "create_date": "2022-02-07"
+    }
+  }
+}
+
+
+GET em_news_v5/_mapping/
+
+
+
+
+
+👉🏻 index management
+Kibana → Manage → Index Management
+
+
