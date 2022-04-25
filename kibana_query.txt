@@ -223,7 +223,51 @@ GET em_news_v5/_search
 }
 
 
+# count query
+GET /em_news_v6/_count
+{
+  "query": 
+  { "match": 
+    {"keyword" : "NONE KEYWORD"
+    }
+  }
+}
+
+
+# null value
+GET /em_news_v6/_search
+{
+    "query": {
+        "bool": {
+            "must_not": {
+                "exists": {
+                    "field": "keyword"
+                }
+            }
+        }
+    }
+}
+
+# not null count
+GET /em_news_v6/_count
+{
+     "query" : {
+        "constant_score" : {
+           "filter" : {
+              "exists" : {
+                 "field" : "keyword"
+              }
+           }
+        }
+     }
+  }
+
+
+
 GET em_news_v5/_mapping/
+
+
+
 
 
 
